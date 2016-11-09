@@ -1,0 +1,60 @@
+heavily-used concepts in modern JavaScript development — closures, callbacks and IIFEs.
+
+Closures
+--------
+In JavaScript, a closure is any function that keeps reference to variables from its parent’s scope even after the parent has returned.
+
+Point 1: You can refer to variables defined outside of the current function.
+
+function setLocation(city) {
+  var country = "France"; 
+
+  function printLocation() {       
+    console.log("You are in " + city + ", " + country);  
+  }
+
+  printLocation();
+}
+
+setLocation ("Paris");  // output: You are in Paris, France
+
+
+Point 2: Inner functions can refer to variables defined in outer functions even after the latter have returned.
+
+function setLocation(city) {
+  var country = "France"; 
+
+  function printLocation() {       
+    console.log("You are in " + city + ", " + country);  
+  }
+
+  return printLocation;
+}
+
+var currentLocation = setLocation ("Paris");   
+
+currentLocation();   // output: You are in Paris, France
+
+
+
+Point 3: Inner functions store their outer function’s variables by reference, not by value.
+
+function cityLocation() {
+  var city = "Paris";
+
+  return {
+    get: function() { console.log(city); },  
+    set: function(newCity) { city = newCity; }
+  };
+}
+
+var myLocation = cityLocation();
+
+myLocation.get();           // output: Paris
+myLocation.set('Sydney');
+myLocation.get();           // output: Sydney
+
+setLocation ("Paris");  // output: You are in Paris, France
+
+
+Here cityLocation() returns an object containing two closures – get() and set() 

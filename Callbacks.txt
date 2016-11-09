@@ -1,0 +1,86 @@
+Callbacks
+In JavaScript, functions are first-class objects. One of the consequences of this fact is that functions can be passed as arguments to other functions and can also be returned by other 
+functions.
+
+A function that takes other functions as arguments or returns functions as its result is called a higher-order function, and the function that is passed as an argument is called a callback function. It’s named “callback” because at some point in time it is “called back” by the higher-order function.
+
+Callbacks have many everyday usages. One of them is when we use the setTimeout() and setInterval() methods of the browser’s window object – methods that accept and execute callbacks:
+
+function showMessage(message){
+  setTimeout(function(){
+    alert(message);
+  }, 3000);  
+}
+
+showMessage('Function called 3 seconds ago');
+
+
+example:
+--------
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+  <script src="callbackfun.js"></script>
+</head>
+<body>
+<button id='btn'>Click me</button>
+<script>
+var el = document.getElementById("btn");
+el.addEventListener("click", showMessage)
+</script>
+</body>
+</html>
+callbackfun.js
+--------------
+function showMessage(){
+  alert('Woohoo!');
+}
+
+
+example
+-------
+function fullName(firstName, lastName, callback){
+  console.log("My name is " + firstName + " " + lastName);
+  callback(lastName);
+}
+
+var greeting = function(ln){
+  console.log('Welcome Mr. ' + ln);
+};
+
+fullName("Jackie", "Chan", greeting);
+
+
+
+example
+--------
+Callbacks are heavily used in JavaScript libraries to provide generalization and "reusability". They allow the library methods to be easily customized and/or extended. Also, the code is easier to maintain, and much more concise and readable. Every time you need to transform your unnecessary repeated code pattern into more abstract/generic function, callbacks come to the rescue.
+
+Let’s say we need two functions – one that prints information about published articles and another that prints information about sent messages. We create them, but we notice that some part of our logic is repeated in both of the functions. We know that having one and the same piece of code in different places is unnecessary and hard to maintain. So, what is the solution? Let’s illustrate it in the next example:
+----------
+function publish(item, author, callback){   // Generic function with common data
+  console.log(item);
+  var date = new Date();
+
+  callback(author, date);
+}
+
+function messages(author, time){   // Callback function with specific data
+  var sendTime = time.toLocaleTimeString();
+  console.log("Sent from " + author + " at " + sendTime);
+}
+
+function articles(author, date){   // Callback function with specific data
+  var pubDate = date.toDateString();
+  console.log("Written by " + author);
+  console.log("Published " + pubDate);
+}
+
+publish("How are you?", "Monique", messages);
+
+publish("10 Tips for JavaScript Developers", "Jane Doe", articles);
+-------------------------------------------------------------------
+What we’ve done here is to put the repeated code pattern (console.log(item) and var date = new Date()) into a separate, generic function (publish()), and leave only the specific data inside other functions – which are now callbacks. That way, with one and the same function we can print information for all sorts of related things – messages, articles, books, magazines and so on. The only thing you need to do is to create a specialized callback function for each type, and pass it as an argument to the publish() function.
+-------------------------------------------------------------------
