@@ -1,0 +1,123 @@
+Inheritance
+-----------
+
+Inheritance is a way to create a class as a specialized version of one or more classes (JavaScript only supports single inheritance). The specialized class is commonly called the child, and the other class is commonly called the parent. In JavaScript you do this by assigning an instance of the parent class to the child class, and then specializing it. In modern browsers you can also use Object.create to implement inheritance.
+
+In the example below, we define the class Student as a child class of Person. Then we redefine the sayHello() method and add the sayGoodBye() method.
+
+// Define the Person constructor
+var Person = function(firstName) {
+  this.firstName = firstName;
+};
+
+// Add a couple of methods to Person.prototype
+Person.prototype.walk = function(){
+  console.log("I am walking!");
+};
+
+Person.prototype.sayHello = function(){
+  console.log("Hello, I'm " + this.firstName);
+};
+
+// Define the Student constructor
+function Student(firstName, subject) {
+  // Call the parent constructor, making sure (using call)
+  // that "this" is set correctly during the call
+  Person.call(this, firstName);
+
+  // Initialize our Student-specific properties
+  this.subject = subject;
+}
+
+// Create a Student.prototype object that inherits from Person.prototype.
+// Note: A common error here is to use "new Person()" to create the
+// Student.prototype. That's incorrect for several reasons, not least 
+// that we don't have anything to give Person for the "firstName" 
+// argument. The correct place to call Person is above, where we call 
+// it from Student.
+Student.prototype = Object.create(Person.prototype); // See note below
+
+// Set the "constructor" property to refer to Student
+Student.prototype.constructor = Student;
+
+// Replace the "sayHello" method
+Student.prototype.sayHello = function(){
+  console.log("Hello, I'm " + this.firstName + ". I'm studying "
+              + this.subject + ".");
+};
+
+// Add a "sayGoodBye" method
+Student.prototype.sayGoodBye = function(){
+  console.log("Goodbye!");
+};
+
+// Example usage:
+var student1 = new Student("Janet", "Applied Physics");
+student1.sayHello();   // "Hello, I'm Janet. I'm studying Applied Physics."
+student1.walk();       // "I am walking!"
+student1.sayGoodBye(); // "Goodbye!"
+
+// Check that instanceof works correctly
+console.log(student1 instanceof Person);  // true 
+console.log(student1 instanceof Student); // true
+
+------------------------------------------------------------
+In above example what is importance of below statement :
+Student.prototype.constructor = Student; 
+
+
+// define the Person Class  
+function Person(name) {
+    this.name = name;
+}  
+
+Person.prototype.copy = function() {  
+    // return new Person(this.name); // just as bad
+    return new this.constructor(this.name);
+};  
+
+// define the Student class  
+function Student(name) {  
+    Person.call(this, name);
+}  
+
+// inherit Person  
+Student.prototype = Object.create(Person.prototype);
+Now what happens when we create a new Student and copy it?
+
+var student1 = new Student("trinth");  
+console.log(student1.copy() instanceof Student); // => false
+The copy is not an instance of Student. This is because (without explicit checks), we'd have no way to return a Student copy from the "base" class. We can only return a Person. However, if we had reset the constructor:
+
+// correct the constructor pointer because it points to Person  
+Student.prototype.constructor = Student;
+...then everything works as expected:
+
+var student1 = new Student("trinth");  
+console.log(student1.copy() instanceof Student); // => true
+------------------------------------------------------------
+
+Encapsulation
+
+In the previous example, Student does not need to know how the Person class's walk() method is implemented, but still can use that method; the Student class doesn't need to explicitly define that method unless we want to change it. This is called encapsulation, by which every class packages data and methods into a single unit.
+
+
+Abstraction
+
+Abstraction is a mechanism that allows you to model the current part of the working problem, either by inheritance (specialization) or composition. JavaScript achieves specialization by inheritance, and composition by letting class instances be the values of other objects' attributes.
+
+The JavaScript Function class inherits from the Object class (this demonstrates specialization of the model) and the Function.prototype property is an instance of Object (this demonstrates composition).
+
+var foo = function () {};
+
+// logs "foo is a Function: true"
+console.log('foo is a Function: ' + (foo instanceof Function));
+
+// logs "foo.prototype is an Object: true"
+console.log('foo.prototype is an Object: ' + (foo.prototype instanceof Object));
+
+
+Polymorphism
+
+Just as all methods and properties are defined inside the prototype property, different classes can define methods with the same name; methods are scoped to the class in which they're defined, unless the two classes hold a parent-child relation (i.e. one inherits from the other in a chain of inheritance).
+
